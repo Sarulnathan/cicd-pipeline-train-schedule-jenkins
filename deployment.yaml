@@ -13,12 +13,17 @@ spec:
         app: html-app
     spec:
       containers:
-      - name: html-app
-        image: nginx:alpine  # Pre-pulled image or use internal registry
-        volumeMounts:
-        - name: html-content
-          mountPath: /usr/share/nginx/html
+        - name: html-app
+          image: tools:latest
+          imagePullPolicy: IfNotPresent
+          command: ["python3"]
+          args: ["-m", "http.server", "8080"]
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: html-content
+              mountPath: /usr/share/nginx/html
       volumes:
-      - name: html-content
-        configMap:
-          name: html-index
+        - name: html-content
+          configMap:
+            name: html-index
