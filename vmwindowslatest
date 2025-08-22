@@ -1,11 +1,10 @@
-# vm-win.yaml
 apiVersion: kubevirt.io/v1
 kind: VirtualMachine
 metadata:
-  name: win2019
-  namespace: win-tenant
+  name: win-labcop-005
+  namespace: gkp
 spec:
-  runStrategy: Manual   # or Always, RerunOnFailure
+  runStrategy: Manual  # or Always, RerunOnFailure
   template:
     spec:
       domain:
@@ -21,35 +20,33 @@ spec:
                 bus: virtio
               bootOrder: 1
             # Optional: mount virtio drivers ISO if your image lacks drivers
-            # - name: virtio-drivers
-            #   cdrom: {}
+            - name: virtio-drivers
+              cdrom: {}
           interfaces:
             - name: default
               masquerade: {}
         firmware:
           bootloader:
             efi:
-              secureBoot: false     # set true if your image/drivers support SB
+              secureBoot: true    # Only if your image/drivers support SB
       networks:
         - name: default
           pod: {}
       volumes:
         - name: rootdisk
           dataVolume:
-            name: win2019-dv
-        # If your image includes Cloudbase-Init, you can pass cloud-init like this:
-        # - name: sysprep
-        #   cloudInitNoCloud:
-        #     userData: |
-        #       #cloud-config
-        #       users:
-        #         - name: Administrator
-        #           passwd: "P@ssw0rd123!"
-        #           lock_passwd: false
-        #       runcmd:
-        #         - [ powershell, "Set-NetConnectionProfile -NetworkCategory Private" ]
-        #
-        # Optional: virtio drivers container disk (image varies by subscription)
+            name: win2022-golden-dv-new
+        - name: sysprep
+          cloudInitNoCloud:
+            userData: |
+              #cloud-config
+              users:
+                - name: Administrator
+                  passwd: "P@ssw0rd123!"
+                  lock_passwd: false
+              runcmd:
+                - [ powershell, "Set-NetConnectionProfile -NetworkCategory Private" ]
+        # Optional virtio drivers container disk (image varies by subscription)
         # - name: virtio-drivers
         #   containerDisk:
-        #     image: registry.redhat.io/container-native-virtualization/virtio-win  # example
+        #     image: registry.redhat.io/container-native-virtualization/virtio-win
