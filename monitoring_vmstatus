@@ -1,0 +1,50 @@
+Bash Example
+# Get OpenShift API URL and token
+API_URL=$(oc whoami --show-server)
+TOKEN=$(oc whoami -t)
+NAMESPACE=my-namespace
+VM_NAME=my-windows-vm
+
+# Query the VirtualMachineInstance status
+curl -s -k \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  "${API_URL}/apis/subresources.kubevirt.io/v1/namespaces/${NAMESPACE}/virtualmachineinstances/${VM_NAME}" | jq '.status.phase'
+
+
+Output: Will show statuses like "Running", "Stopped", "Scheduling", etc.
+
+Python Example
+import requests
+import subprocess
+import json
+
+# Get OpenShift token and API URL
+api_url = subprocess.check_output(["oc", "whoami", "--show-server"]).decode().strip()
+token = subprocess.check_output(["oc", "whoami", "-t"]).decode().strip()
+
+namespace = "my-namespace"
+vm_name = "my-windows-vm"
+
+url = f"{api_url}/apis/subresources.kubevirt.io/v1/namespaces/{namespace}/virtualmachineinstances/{vm_name}"
+headers = {
+    "Authorization": f"Bearer {token}",
+    "Content-Type": "application/json"
+}
+
+response = requests.get(url, headers=headers, verify=False)  # verify=False skips SSL validation
+data = response.json()
+
+print("VM Status:", data.get("status", {}).get("phase", "Unknown"))
+
+Key Notes
+
+Replace my-namespace and my-windows-vm with your namespace and VM name.
+
+You must be logged in to OpenShift CLI (oc login).
+
+The status phase is under .status.phase and can be Running, Stopped, Paused, etc.
+
+If you want to list all VMs, hit /apis/subresources.kubevirt.io/v1/namespaces/<ns>/virtualmachineinstances.
+
+Would you like me to extend this to a reusable script (e.g., pass namespace/VM as arguments)? Or show how to check all VMs at once?
